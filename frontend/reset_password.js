@@ -2,30 +2,29 @@ const resetForm = document.getElementById('reset-form');
 const resetMessage = document.getElementById('reset-message');
 const newPasswordInput = document.getElementById('new-password');
 
-const token = new URLSearchParams(window.location.search).get('token');
-
-if (!token) {
-    resetMessage.style.color = 'red';
-    resetMessage.innerText = 'Reset token is missing from the URL.';
-} else {
-    resetMessage.innerText = 'Enter a new password and click Update.';
-}
+// Simple password reset - no token required
+resetMessage.innerText = 'Enter your email and new password to reset.';
 
 resetForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    if (!token) return;
-
+    const email = document.getElementById('reset-email').value;
     const newPassword = newPasswordInput.value;
+
+    if (!email || !newPassword) {
+        resetMessage.style.color = 'red';
+        resetMessage.innerText = 'Please fill in all fields';
+        return;
+    }
 
     try {
         resetMessage.style.color = '#333';
         resetMessage.innerText = 'Updating password...';
 
-        const res = await fetch('http://localhost:5000/api/auth/reset-password', {
+        const res = await fetch('http://localhost:5000/api/auth/reset-password-direct', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token, newPassword })
+            body: JSON.stringify({ email, newPassword })
         });
 
         const data = await res.json();
