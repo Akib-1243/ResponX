@@ -103,38 +103,3 @@ loginForm.addEventListener('submit', async (e) => {
         loginMessage.innerText = 'Failed to connect to the server';
     }
 });
-
-// Forgot password logic
-const forgotLink = document.getElementById('forgot-password-link');
-const forgotMessage = document.getElementById('forgot-message');
-
-if (forgotLink && forgotMessage) {
-    forgotLink.addEventListener('click', async (e) => {
-        e.preventDefault();
-
-        const email = window.prompt('Enter your email to reset your password:');
-        if (!email) return;
-
-        forgotMessage.style.color = '#333';
-        forgotMessage.innerText = 'Generating reset link...';
-
-        try {
-            const res = await fetch('http://localhost:5000/api/auth/forgot-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
-
-            const data = await res.json();
-            forgotMessage.style.color = res.ok ? 'green' : 'red';
-            if (data.resetUrl) {
-                forgotMessage.innerHTML = `${data.message || 'Reset link ready'} <a href="${data.resetUrl}" target="_blank" style="color:inherit;">Open reset page</a>`;
-            } else {
-                forgotMessage.innerText = data.message || (res.ok ? 'Done' : 'Failed');
-            }
-        } catch (err) {
-            forgotMessage.style.color = 'red';
-            forgotMessage.innerText = 'Failed to connect to the server';
-        }
-    });
-}

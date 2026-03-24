@@ -27,6 +27,9 @@ configurePassport();
 app.use(cors());
 app.use(express.json());
 
+// Serve static frontend files
+app.use(express.static('d:/Mern Stack/ResponX/frontend'));
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'dev_session_secret',
@@ -42,6 +45,13 @@ app.use("/api/auth", authRoutes)
 app.use("/api/auth", googleRoutes);
 app.use("/api/auth", facebookRoutes);
 app.use("/api/auth", githubRoutes);
+import resetDirectRoutes from './routes/reset-direct.js';
+app.use("/api/auth", resetDirectRoutes);
+
+// Root route - redirect to login page
+app.get('/', (req, res) => {
+    res.redirect('/login_register.html');
+});
 
 // Example routes for teammates - remove in production
 import exampleRoutes from './routes/examples.js';
