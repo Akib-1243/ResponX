@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const mockRequests = [
   {
@@ -85,6 +85,21 @@ const statusConfig = {
 
 export default function VolunteerDashboard() {
   const [requests, setRequests] = useState(mockRequests);
+  useEffect(() => {
+  const fetchRequests = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:5000/api/aid/all', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) setRequests(data);
+    } catch (err) {
+      console.log('Using mock data');
+    }
+  };
+  fetchRequests();
+}, []);
   const [filter, setFilter] = useState("all");
   const [selected, setSelected] = useState(null);
 
@@ -95,14 +110,25 @@ export default function VolunteerDashboard() {
     return r.urgency === filter;
   });
 
-  const accept = (id) => {
-    setRequests((prev) =>
-      prev.map((r) =>
-        r.id === id ? { ...r, status: "accepted", volunteer: "You" } : r
-      )
-    );
-    setSelected(null);
-  };
+  const accept = async (id) => {
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`http://localhost:5000/api/aid/accept/${id}`, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) {
+      setRequests((prev) =>
+        prev.map((r) =>
+          r.id === id || r._id === id ? { ...r, status: "accepted", volunteer: "You" } : r
+        )
+      );
+    }
+  } catch (err) {
+    console.log(err);
+  }
+  setSelected(null);
+};
 
   const pendingCount = requests.filter((r) => r.status === "pending").length;
   const criticalCount = requests.filter((r) => r.urgency === "critical" && r.status === "pending").length;

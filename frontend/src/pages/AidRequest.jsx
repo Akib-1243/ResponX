@@ -52,10 +52,36 @@ export default function AidRequest() {
     );
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmitted(true);
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch('http://localhost:5000/api/aid/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        name: form.name,
+        phone: form.phone,
+        people: Number(form.people),
+        location: form.location,
+        urgency: form.urgency,
+        needs: form.needs,
+        description: form.description
+      })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setSubmitted(true);
+    } else {
+      alert(data.message || 'Something went wrong');
+    }
+  } catch (err) {
+    alert('Server error. Please try again.');
+  }
+};
 
   if (submitted) {
     return (
