@@ -41,21 +41,20 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use("/api/auth", authRoutes)
+app.use("/api/auth", authRoutes);
 app.use("/api/auth", googleRoutes);
 app.use("/api/auth", facebookRoutes);
 app.use("/api/auth", githubRoutes);
+
 import resetDirectRoutes from './routes/reset-direct.js';
 app.use("/api/auth", resetDirectRoutes);
+
+// Removed missing testRoutes module import
 
 // Root route - redirect to login page
 app.get('/', (req, res) => {
     res.redirect('/login_register.html');
 });
-
-// Example routes for teammates - remove in production
-import exampleRoutes from './routes/examples.js';
-app.use("/api/examples", exampleRoutes);
 
 connectDB();
 
