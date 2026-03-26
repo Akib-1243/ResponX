@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ResponX — Emergency Response</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    /* ── App ── */
+    function App() {
+      const [activeView, setActiveView] = useState('dashboard');
+      const [showModal, setShowModal]   = useState(false);
+      return (
+        <div>
+          <Header activeView={activeView} setActiveView={setActiveView} />
+          <TabNavigation activeView={activeView} setActiveView={setActiveView} />
+
+          {activeView === 'dashboard' && <DashboardView setShowModal={setShowModal} />}
+          {activeView === 'shelters'  && <SheltersView />}
+          {activeView === 'requests'  && <RequestsView />}
+          {activeView === 'volunteer' && <VolunteerView />}
+          {activeView === 'admin'     && <AdminView />}
+
+          {showModal && <RequestModal onClose={() => setShowModal(false)} />}
+        </div>
+      );
+    }
+
+    /* ── Header ── */
+    function Header({ activeView, setActiveView }) {
+      return (
+        <header className="header">
+          <div className="header-content">
+            <div className="logo">
+              <div className="logo-icon">⚡</div>
+              <span>Respon<em>X</em></span>
+            </div>
+
+            <nav className="nav-menu">
+              {[
+                ['dashboard', 'Dashboard'],
+                ['shelters',  'Shelters'],
+                ['requests',  'Aid Requests'],
+                ['volunteer', 'Volunteer'],
+              ].map(([view, label]) => (
+                <a key={view}
+                   className={`nav-link ${activeView === view ? 'active' : ''}`}
+                   onClick={() => setActiveView(view)}>
+                  {label}
+                </a>
+              ))}
+            </nav>
+
+            <div className="user-badge">
+              <span>👤 John Doe</span>
+              <span className="badge-trusted">✓ Trusted</span>
+            </div>
+          </div>
+        </header>
+      );
+    }
+
+    /* ── Tab Navigation ── */
+    function TabNavigation({ activeView, setActiveView }) {
+      const tabs = [
+        ['dashboard', '▦  Overview'],
+        ['shelters',  '⌂  Shelters Map'],
+        ['requests',  '⚠  Urgent Requests'],
+        ['volunteer', '↗  Volunteer Hub'],
+        ['admin',     '✦  Admin Panel'],
+      ];
+      return (
+        <div className="tab-navigation">
+          <div className="tab-nav-content">
+            {tabs.map(([view, label]) => (
+              <button key={view}
+                className={`tab-button ${activeView === view ? 'active' : ''}`}
+                onClick={() => setActiveView(view)}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    /* ── Dashboard ── */
+    function DashboardView({ setShowModal }) {
+      const stats = [
+        { title: 'Active Shelters',   value: '24',   change: '+3 today',     positive: true,  icon: '⌂', color: '#3b82f6' },
+        { title: 'People Helped',     value: '1,847',change: '+256 today',   positive: true,  icon: '↑', color: '#10b981' },
+        { title: 'Urgent Requests',   value: '38',   change: '−12 resolved', positive: true,  icon: '⚠', color: '#e03535' },
+        { title: 'Active Volunteers', value: '156',  change: '+28 today',    positive: true,  icon: '✦', color: '#f97316' },
+      ];
+
+      const shelters = [
+        { name: 'Central Relief Center', location: 'Downtown',      capacity: 85,  total: 100, status: 'high'   },
+        { name: 'Community Hall A',       location: 'North District',capacity: 45,  total: 80,  status: 'medium' },
+        { name: 'Sports Complex',         location: 'East Side',     capacity: 120, total: 200, status: 'low'    },
+      ];
+
+      const urgentRequests = [
+        {
+          title: 'Medical Supplies Needed',
+          description: 'Insulin and first aid kits urgently required for diabetic patients.',
+          location: 'Shelter B, West District',
+          time: '15 min ago',
+          verified: true,
+        },
+        {
+          title: 'Baby Formula & Diapers',
+          description: 'Emergency request for infant care supplies for 8 babies.',
+          location: 'Community Center, South',
+          time: '32 min ago',
+          verified: true,
+        },
+      ];
+
+      return (
+        <div className="main-container">
+          {/* Stat Cards */}
+          <div className="dashboard-grid">
+            {stats.map((stat, i) => (
+              <div key={i} className="stat-card">
+                <div className="stat-header">
+                  <span className="stat-title">{stat.title}</span>
+                  <div className="stat-icon"
+                       style={{ background: stat.color + '18', color: stat.color, fontSize: '1.1rem' }}>
+                    {stat.icon}
+                  </div>
+                </div>
+                <div className="stat-value">{stat.value}</div>
+                <div className={`stat-change ${stat.positive ? 'positive' : 'negative'}`}>
+                  {stat.change}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Content Layout */}
+          <div className="content-layout">
+            {/* Map */}
+            <div className="map-section">
+              <div className="map-header">
+                <span className="map-title">Live Resource Map</span>
+                <div className="map-filters">
+                  <button className="filter-btn active">All</button>
+                  <button className="filter-btn">Shelters</button>
+                  <button className="filter-btn">Requests</button>
+                </div>
+              </div>
+              <div className="map-placeholder">
+                <span>🗺️ Interactive Map (Leaflet / Mapbox Integration)</span>
+                <div className="map-marker" style={{ color:'#e03535', top:'22%', left:'32%' }}>24</div>
+                <div className="map-marker" style={{ color:'#10b981', top:'52%', left:'61%' }}>38</div>
+                <div className="map-marker" style={{ color:'#f97316', top:'71%', left:'42%' }}>12</div>
+              </div>
+            </div>
+
+            {/* Sidebar */}
+            <div className="sidebar-section">
+              {/* Shelter Capacity */}
+              <div className="sidebar-card">
+                <div className="sidebar-header">Shelter Capacity</div>
+                <div className="sidebar-content">
+                  {shelters.map((s, i) => (
+                    <div key={i} className="shelter-card">
+                      <div className="shelter-name">{s.name}</div>
+                      <div className="shelter-location">📍 {s.location}</div>
+                      <div className="capacity-bar">
+                        <div className={`capacity-fill ${s.status}`}
+                             style={{ width: `${(s.capacity / s.total) * 100}%` }} />
+                      </div>
+                      <div className="capacity-text">{s.capacity}/{s.total} occupied</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Urgent Requests */}
+              <div className="sidebar-card">
+                <div className="sidebar-header">Urgent Requests</div>
+                <div className="sidebar-content">
+                  {urgentRequests.map((req, i) => (
+                    <div key={i} className="request-card">
+                      <div className="request-header">
+                        <span className="request-title">{req.title}</span>
+                        <span className="request-time">{req.time}</span>
+                      </div>
+                      <div className="request-description">{req.description}</div>
+                      <div className="request-meta">
+                        <span>📍 {req.location}</span>
+                        {req.verified && <span className="badge badge-verified">✓ Verified</span>}
+                      </div>
+                    </div>
+                  ))}
+                  <button className="btn btn-primary"
+                          style={{ width: '100%', marginTop: '1rem' }}
+                          onClick={() => setShowModal(true)}>
+                    + Submit Urgent Request
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ── Stub Views ── */
+    function StubView({ emoji, title, description }) {
+      return (
+        <div className="main-container">
+          <div className="view-stub">
+            <div className="view-stub-title">{emoji} {title}</div>
+            <p>{description}</p>
+          </div>
+        </div>
+      );
+    }
+
+    function SheltersView() {
+      return <StubView emoji="⌂" title="Active Shelters"
+        description="Full shelter management interface with real-time capacity tracking, amenities list, contact information, and navigation features." />;
+    }
+    function RequestsView() {
+      return <StubView emoji="⚠" title="Aid Requests"
+        description="Request management system with filtering, priority sorting, volunteer assignment, and status tracking." />;
+    }
+    function VolunteerView() {
+      return <StubView emoji="✦" title="Volunteer Hub"
+        description="Volunteer coordination dashboard with task assignment, delivery tracking, verification badges, and contribution history." />;
+    }
+    function AdminView() {
+      return <StubView emoji="⚙" title="Admin Dashboard"
+        description="Comprehensive admin panel for user verification, data analytics, system monitoring, and content moderation." />;
+    }
+
+    /* ── Request Modal ── */
+    function RequestModal({ onClose }) {
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Submit Urgent Request</h2>
+              <button className="modal-close" onClick={onClose}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label className="form-label">Request Type</label>
+                <select className="form-select">
+                  <option>Medical Supplies</option>
+                  <option>Food &amp; Water</option>
+                  <option>Shelter</option>
+                  <option>Clothing</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Description</label>
+                <textarea className="form-textarea"
+                          placeholder="Describe what you need in detail…" />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Location</label>
+                <input type="text" className="form-input"
+                       placeholder="Enter your current location" />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Number of People Affected</label>
+                <input type="number" className="form-input" placeholder="0" />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+              <button className="btn btn-primary">Submit Request</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
