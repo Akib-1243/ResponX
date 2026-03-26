@@ -278,7 +278,7 @@ export default function VolunteerDashboard() {
                         style={styles.acceptBtnSmall}
                         onClick={(e) => {
                           e.stopPropagation();
-                          accept(req.id);
+                          accept(req._id || req.id);
                         }}
                       >
                         Accept
@@ -353,7 +353,7 @@ export default function VolunteerDashboard() {
               {selected.status === "pending" ? (
                 <button
                   style={styles.acceptBtnLarge}
-                  onClick={() => accept(selected.id)}
+                  onClick={() => accept(selected._id || selected.id)}
                 >
                   ✓ Accept This Request
                 </button>
