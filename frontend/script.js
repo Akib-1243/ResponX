@@ -37,7 +37,7 @@ registerForm.addEventListener('submit', async (e) => {
             localStorage.setItem('user', JSON.stringify(data));
             
             setTimeout(() => {
-                window.location.href = 'index.html';
+                window.location.href = 'src/index.html';
             }, 1000);
             
         } else {
@@ -91,7 +91,7 @@ loginForm.addEventListener('submit', async (e) => {
             localStorage.setItem('user', JSON.stringify(data));
             
             setTimeout(() => {
-                window.location.href = 'index.html';
+                window.location.href = 'src/index.html';
             }, 1000);
             
         } else {
