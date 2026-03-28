@@ -1,24 +1,68 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-require('dotenv').config();
+import express from 'express';
+import dotenv from 'dotenv'
+import authRoutes from './routes/auth.js';
+import { connectDB  } from "./config/db.js";
+dotenv.config();
 
-const authRoutes = require('./routes/auth');
-const aidRoutes = require('./routes/aidRequest');
+// Debug: Check if environment variables are loaded
+console.log('=== OAuth Debug ===');
+console.log('Google ID exists:', !!process.env.GOOGLE_CLIENT_ID);
+console.log('Facebook ID exists:', !!process.env.FACEBOOK_CLIENT_ID);
+console.log('GitHub ID exists:', !!process.env.GITHUB_CLIENT_ID);
+console.log('==================');
 
-const app = express();
+import cors from 'cors';
+import session from 'express-session';
+import passport from 'passport';
+
+// Import teammate's routes (temporarily disabled)
+// import aidRoutes from './routes/aidRequest.js';
+
+const PORT=process.env.PORT || 5000;
+
+const app=express();
+import googleRoutes from './routes/your-routes/google.js';
+import facebookRoutes from './routes/your-routes/facebook.js';
+import githubRoutes from './routes/your-routes/github.js';
+import { configurePassport } from './config/passport.js';
+configurePassport();
 
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/auth', authRoutes);
-app.use('/api/aid', aidRoutes);
+// Serve static frontend files
+app.use(express.static('d:/Mern Stack/ResponX/frontend'));
 
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log('MongoDB connected');
-    app.listen(process.env.PORT, () => {
-      console.log(`Server running on port ${process.env.PORT}`);
-    });
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'dev_session_secret',
+    resave: false,
+    saveUninitialized: false,
   })
-  .catch((err) => console.log(err));
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Your authentication routes
+app.use("/api/auth", authRoutes)
+app.use("/api/auth", googleRoutes)
+app.use("/api/auth", facebookRoutes)
+app.use("/api/auth", githubRoutes);
+
+import resetDirectRoutes from './routes/your-routes/reset-direct.js';
+app.use("/api/auth", resetDirectRoutes);
+
+// Teammate's aid request routes (temporarily disabled)
+// app.use('/api/aid', aidRoutes);
+
+// Root route - redirect to login page
+app.get('/', (req, res) => {
+    res.redirect('/login_register.html');
+});
+
+connectDB();
+
+app.listen(PORT, () => {
+    console.log(`Server started at port ${PORT}`);
+});

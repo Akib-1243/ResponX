@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const aidRequestSchema = new mongoose.Schema({
   victim: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -13,4 +13,4 @@ const aidRequestSchema = new mongoose.Schema({
   acceptedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true });
 
-module.exports = mongoose.model('AidRequest', aidRequestSchema);
+export default mongoose.model('AidRequest', aidRequestSchema);

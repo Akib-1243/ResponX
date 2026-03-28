@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import AidRequest from '../models/AidRequest.js';
+import auth from '../middleware/auth.js';
+
 const router = express.Router();
-const AidRequest = require('../models/AidRequest');
-const auth = require('../middleware/auth');
 
 // Submit aid request (victim)
 router.post('/submit', auth, async (req, res) => {
@@ -54,4 +55,4 @@ router.put('/accept/:id', auth, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
