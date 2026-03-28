@@ -53,7 +53,7 @@ router.get(
   <body>
     <script>
       localStorage.setItem('token', ${tokenLiteral});
-      window.location.href = '${frontendBaseUrl}/index.html';
+      window.location.href = '${frontendBaseUrl}/src/index.html';
     </script>
   </body>
 </html>`);
