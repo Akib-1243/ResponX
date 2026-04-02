@@ -1,7 +1,7 @@
 import User from "../../models/User.js";
 import jwt from 'jsonwebtoken';
 
-export const protect= async (req, res, next) => {
+const protect = async (req, res, next) => {
     let token;
 
     if(req.headers.authorization && req.headers.authorization.startsWith("Bearer")){
@@ -29,7 +29,7 @@ export const protect= async (req, res, next) => {
 // Authorization: [Bearer , <token> ]
 
 // Role-based authorization middleware
-export const authorize = (...roles) => {
+const authorize = (...roles) => {
     return (req, res, next) => {
         if (!req.user) {
             return res.status(401).json({ message: "Not authorized, user not found" });
@@ -48,7 +48,7 @@ export const authorize = (...roles) => {
 };
 
 // Check if user is verified (for trusted_volunteer role)
-export const requireVerified = (req, res, next) => {
+const requireVerified = (req, res, next) => {
     if (!req.user.isVerified && req.user.role === 'trusted_volunteer') {
         return res.status(403).json({ 
             message: "Not authorized, user not verified",
@@ -57,3 +57,6 @@ export const requireVerified = (req, res, next) => {
     }
     next();
 };
+
+export default protect;
+export { authorize, requireVerified };
