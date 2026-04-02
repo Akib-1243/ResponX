@@ -514,6 +514,7 @@ const styles = {
     fontSize: 13,
     letterSpacing: "0.05em",
   },
+  
   textarea: {
     backgroundColor: "#0f0f0f",
     border: "1px solid #2a2a2a",
@@ -553,6 +554,7 @@ const styles = {
     background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)",
     animation: "shimmer 2s infinite",
   },
+
   // Success screen
   successBox: {
     maxWidth: 480,
@@ -613,6 +615,7 @@ const styles = {
     color: "#e63946",
     letterSpacing: "0.1em",
   },
+
   newBtn: {
     backgroundColor: "transparent",
     border: "1px solid #2a2a2a",
@@ -625,3 +628,5 @@ const styles = {
     letterSpacing: "0.08em",
   },
 };
+
+
