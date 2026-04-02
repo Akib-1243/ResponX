@@ -12,8 +12,10 @@ function App() {
       <TabNavigation activeView={activeView} setActiveView={setActiveView} />
 
       {activeView === 'dashboard' && <DashboardView setShowModal={setShowModal} setActiveView={setActiveView} />}
+      {/* AidRequest and VolunteerDashboard pages*/}
       {activeView === 'aid-request' && <AidRequest />}
       {activeView === 'volunteer' && <VolunteerDashboard />}
+      
       {activeView === 'shelters' && <SheltersView />}
       {activeView === 'admin' && <AdminView />}
 
