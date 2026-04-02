@@ -23,7 +23,7 @@ router.post('/submit', auth, async (req, res) => {
     res.status(201).json(aidRequest);
   } catch (err) {
     res.status(500).json({ message: err.message });
-  }
+  } 
 });
 
 // Get all aid requests (volunteer/admin)
@@ -37,7 +37,7 @@ router.get('/all', auth, async (req, res) => {
     res.json(requests);
   } catch (err) {
     res.status(500).json({ message: err.message });
-  }
+  } 
 });
 
 // Accept aid request (volunteer)
@@ -47,7 +47,7 @@ router.put('/accept/:id', auth, async (req, res) => {
       req.params.id,
       { status: 'accepted', acceptedBy: req.user.id },
       { new: true }
-    );
+    ); 
 
     res.json(request);
   } catch (err) {
