@@ -7,25 +7,29 @@ import { EMAIL_VERIFY_TEMPLATE ,PASSWORD_RESET_TEMPLATE } from '../config/emailT
 
 // ================= REGISTER =================
 export const register = async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     if (!name || !email || !password) {
-        return res.json({ success: false, message: "Please fill all fields" });
+        return res.status(400).json({ success: false, message: "Please fill all fields" });
     }
 
     try {
         const existingUser = await userModel.findOne({ email });
 
         if (existingUser) {
-            return res.json({ success: false, message: "User already exists" });
+            return res.status(409).json({ success: false, message: "User already exists" });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+        const assignedRole = ['requester', 'volunteer', 'admin'].includes(role) ? role : 'requester';
 
         const user = await userModel.create({
             name,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            role: assignedRole,
+            status: assignedRole === 'admin' ? 'verified' : 'pending',
+            isAccountVerified: assignedRole === 'admin',
         });
 
         const token = jwt.sign(
@@ -38,6 +42,7 @@ export const register = async (req, res) => {
             httpOnly: true,
             secure: false,
             sameSite: "lax",
+            path: '/',
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
@@ -65,20 +70,20 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-        return res.json({ success: false, message: "Please fill all fields" });
+        return res.status(400).json({ success: false, message: "Please fill all fields" });
     }
 
     try {
         const user = await userModel.findOne({ email });
 
         if (!user) {
-            return res.json({ success: false, message: "User not found" });
+            return res.status(404).json({ success: false, message: "User not found" });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            return res.json({ success: false, message: "Invalid password" });
+            return res.status(401).json({ success: false, message: "Invalid password" });
         }
 
         const token = jwt.sign(
@@ -91,6 +96,7 @@ export const login = async (req, res) => {
             httpOnly: true,
             secure: false,
             sameSite: "lax",
+            path: '/',
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
