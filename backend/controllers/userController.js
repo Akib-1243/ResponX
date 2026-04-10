@@ -32,6 +32,30 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+export const updateUserStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!['verified', 'rejected'].includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid status update.' });
+    }
+
+    const user = await userModel.findById(id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    user.status = status;
+    user.isAccountVerified = status === 'verified';
+    await user.save();
+
+    res.status(200).json({ success: true, message: 'User status updated successfully.', data: { _id: user._id, status: user.status, isAccountVerified: user.isAccountVerified } });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export const createAdminUser = async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -56,6 +80,28 @@ export const createAdminUser = async (req, res) => {
     });
 
     return res.status(201).json({ success: true, message: 'Admin user created successfully.', user: { name: user.name, email: user.email, role: user.role } });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await userModel.findById(id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    // Prevent deleting the current admin user
+    if (user._id.toString() === req.userId) {
+      return res.status(400).json({ success: false, message: 'Cannot delete your own account.' });
+    }
+
+    await userModel.findByIdAndDelete(id);
+
+    res.status(200).json({ success: true, message: 'User deleted successfully.' });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
