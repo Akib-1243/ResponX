@@ -97,11 +97,7 @@ const Login = () => {
                 <select className='bg-[#22284B] text-white rounded-full px-4 py-2 outline-none' value={role} onChange={e => setRole(e.target.value)}>
                   <option value='requester'>Requester</option>
                   <option value='volunteer'>Volunteer</option>
-                  <option value='admin'>Admin</option>
                 </select>
-                {role === 'admin' && (
-                  <div className='text-xs text-yellow-300'>Admin accounts are privileged; choose only if you need admin access.</div>
-                )}
               </div>
             </div>
           )}

@@ -21,15 +21,20 @@ export const register = async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const assignedRole = ['requester', 'volunteer', 'admin'].includes(role) ? role : 'requester';
+        const allowedRoles = ['requester', 'volunteer'];
+        const assignedRole = allowedRoles.includes(role) ? role : 'requester';
+
+        if (role === 'admin') {
+            return res.status(403).json({ success: false, message: 'Admin accounts cannot be created via public signup.' });
+        }
 
         const user = await userModel.create({
             name,
             email,
             password: hashedPassword,
             role: assignedRole,
-            status: assignedRole === 'admin' ? 'verified' : 'pending',
-            isAccountVerified: assignedRole === 'admin',
+            status: 'pending',
+            isAccountVerified: false,
         });
 
         const token = jwt.sign(

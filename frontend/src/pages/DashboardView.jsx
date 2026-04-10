@@ -12,7 +12,6 @@ function DashboardView() {
   const { isLoggedIn } = useContext(AppContent);
   const [shelters, setShelters] = useState([]);
   const [requests, setRequests] = useState([]);
-  const [tasks, setTasks] = useState([]);
   const [photos, setPhotos] = useState([]);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,12 +26,8 @@ function DashboardView() {
 
     const fetchProtectedData = async () => {
       if (!isLoggedIn) return;
-      const [reqRes, taskRes] = await Promise.all([
-        aidRequestService.getAll(),
-        volunteerService.getAll(),
-      ]);
+      const reqRes = await aidRequestService.getAll();
       setRequests(reqRes.data.data || []);
-      setTasks(taskRes.data.data || []);
     };
 
     const fetchPhotos = async () => {
@@ -66,7 +61,6 @@ function DashboardView() {
   const totalOccupied = shelters.reduce((sum, shelter) => sum + (shelter.capacity || 0), 0);
   const totalPhotos = photos.length;
   const totalRequests = requests.length;
-  const totalTasks = tasks.length;
 
   if (loading) {
     return (
