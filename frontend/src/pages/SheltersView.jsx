@@ -24,9 +24,14 @@ function SheltersView() {
   }, []);
 
   const filtered = shelters.filter(s => {
+    // Ensure all required fields exist before filtering
+    if (!s.name || !s.location || !s.address) return false;
+
     const matchSearch =
       s.name.toLowerCase().includes(search.toLowerCase()) ||
-      s.location.toLowerCase().includes(search.toLowerCase());
+      s.location.toLowerCase().includes(search.toLowerCase()) ||
+      s.address.toLowerCase().includes(search.toLowerCase()) ||
+      (s.phone && s.phone.includes(search));
     const matchFilter =
       filter === 'All' ||
       (filter === 'Available' && s.status === 'low'  && s.open) ||
@@ -35,8 +40,8 @@ function SheltersView() {
     return matchSearch && matchFilter;
   });
 
-  const totalCapacity = shelters.reduce((a, s) => a + s.total, 0);
-  const totalOccupied = shelters.reduce((a, s) => a + s.capacity, 0);
+  const totalCapacity = shelters.reduce((a, s) => a + (s.total || 0), 0);
+  const totalOccupied = shelters.reduce((a, s) => a + (s.capacity || 0), 0);
 
   if (loading) return <LoadingScreen />;
   if (error)   return <ErrorScreen message={error} />;
@@ -85,7 +90,7 @@ function SheltersView() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                 <div>
                   <div className="shelter-name">{shelter.name}</div>
-                  <div className="shelter-location">📍 {shelter.address}</div>
+                  <div className="shelter-location">📍 {shelter.address || 'Address not provided'}</div>
                 </div>
                 <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
                   <span className="badge" style={{ background: STATUS_COLOR[shelter.status] + '20', color: STATUS_COLOR[shelter.status] }}>
@@ -95,12 +100,12 @@ function SheltersView() {
                 </div>
               </div>
               <div className="capacity-bar">
-                <div className={`capacity-fill ${shelter.status}`} style={{ width: `${(shelter.capacity / shelter.total) * 100}%` }} />
+                <div className={`capacity-fill ${shelter.status}`} style={{ width: `${shelter.total ? ((shelter.capacity || 0) / shelter.total) * 100 : 0}%` }} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.4rem' }}>
-                <div className="capacity-text">{shelter.capacity}/{shelter.total} occupied</div>
+                <div className="capacity-text">{shelter.capacity || 0}/{shelter.total || 0} occupied</div>
                 <div style={{ display: 'flex', gap: '0.4rem' }}>
-                  {shelter.amenities.slice(0, 4).map(a => (
+                  {(shelter.amenities || []).slice(0, 4).map(a => (
                     <span key={a} title={a} style={{ fontSize: '0.85rem' }}>{AMENITY_ICONS[a]}</span>
                   ))}
                 </div>
@@ -119,14 +124,14 @@ function SheltersView() {
               <div className="sidebar-content">
                 <div style={{ marginBottom: '1rem' }}>
                   <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>{selected.name}</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>📍 {selected.address}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>📍 {selected.address || 'Address not provided'}</div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
                   {[
                     { label: 'Status',    value: selected.open ? 'Open' : 'Closed', color: selected.open ? '#10b981' : '#e03535' },
-                    { label: 'Occupancy', value: `${selected.capacity}/${selected.total}`, color: STATUS_COLOR[selected.status] },
-                    { label: 'Available', value: selected.total - selected.capacity, color: '#3b82f6' },
-                    { label: 'Capacity',  value: `${Math.round((selected.capacity / selected.total) * 100)}%`, color: STATUS_COLOR[selected.status] },
+                    { label: 'Occupancy', value: `${selected.capacity || 0}/${selected.total || 0}`, color: STATUS_COLOR[selected.status] },
+                    { label: 'Available', value: (selected.total || 0) - (selected.capacity || 0), color: '#3b82f6' },
+                    { label: 'Capacity',  value: `${selected.total ? Math.round(((selected.capacity || 0) / selected.total) * 100) : 0}%`, color: STATUS_COLOR[selected.status] },
                   ].map((item, i) => (
                     <div key={i} style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 'var(--r-md)', padding: '0.75rem' }}>
                       <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>{item.label}</div>
@@ -135,19 +140,24 @@ function SheltersView() {
                   ))}
                 </div>
                 <div className="capacity-bar" style={{ marginBottom: '1rem' }}>
-                  <div className={`capacity-fill ${selected.status}`} style={{ width: `${(selected.capacity / selected.total) * 100}%` }} />
+                  <div className={`capacity-fill ${selected.status}`} style={{ width: `${selected.total ? ((selected.capacity || 0) / selected.total) * 100 : 0}%` }} />
                 </div>
                 <div style={{ marginBottom: '1rem' }}>
                   <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>AMENITIES</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-                    {selected.amenities.map(a => (
+                    {(selected.amenities || []).map(a => (
                       <span key={a} className="badge badge-verified">{AMENITY_ICONS[a]} {a}</span>
                     ))}
                   </div>
                 </div>
                 <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 'var(--r-md)', padding: '0.85rem', marginBottom: '1rem' }}>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>CONTACT</div>
-                  <div style={{ fontSize: '0.875rem', color: 'var(--text-primary)', fontWeight: 600 }}>📞 {selected.phone}</div>
+                  <div style={{ fontSize: '0.875rem', color: 'var(--text-primary)', fontWeight: 600 }}>📞 {selected.phone || 'Not provided'}</div>
+                  {selected.createdBy && (
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                      Added by {selected.createdBy.name} • {new Date(selected.createdAt).toLocaleDateString()}
+                    </div>
+                  )}
                 </div>
                 <button className="btn btn-primary" style={{ width: '100%' }}>Get Directions</button>
               </div>

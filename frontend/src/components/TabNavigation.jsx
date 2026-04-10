@@ -1,19 +1,26 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
-
-const TABS = [
-  ['/dashboard', '▦  Overview'],
-  ['/aid-request', '⚠  Request Aid'],
-  ['/volunteer', '↗  Volunteer Hub'],
-  ['/shelters', '⌂  Shelters Map'],
-  ['/admin', '✦  Admin Panel'],
-];
+import { AppContent } from '../context/AppContext.jsx';
 
 function TabNavigation() {
+  const { userData } = useContext(AppContent);
+  const isAdmin = userData?.role === 'admin';
+  const canViewVolunteer = userData?.role !== 'requester';
+  const tabs = [
+    ['/dashboard', '▦  Overview'],
+    ['/aid-request', '⚠  Request Aid'],
+    ...(canViewVolunteer ? [['/volunteer', '↗  Volunteer Hub']] : []),
+    ['/shelters', '⌂  Shelters Map'],
+  ];
+
+  if (isAdmin) {
+    tabs.push(['/admin', '✦  Admin Panel']);
+  }
+
   return (
     <div className="tab-navigation">
       <div className="tab-nav-content">
-        {TABS.map(([path, label]) => (
+        {tabs.map(([path, label]) => (
           <NavLink
             key={path}
             to={path}

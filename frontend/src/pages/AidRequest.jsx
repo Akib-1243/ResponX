@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import aidRequestService from '../services/aidRequestService';
+import { AppContent } from '../context/AppContext';
 
 function AidRequest() {
+  const navigate = useNavigate();
+  const { isLoggedIn, authLoading } = useContext(AppContent);
   const [formData, setFormData] = useState({
     type: 'Medical Supplies', description: '', location: '', people: '', urgency: 'High',
   });
@@ -9,17 +13,35 @@ function AidRequest() {
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState('');
 
+  useEffect(() => {
+    if (authLoading) return;
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
+  }, [authLoading, isLoggedIn, navigate]);
+
   const handleChange = e =>
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = async () => {
+    // Form validation
+    if (!formData.description.trim()) {
+      setError('Please describe your request');
+      return;
+    }
+    if (!formData.location.trim()) {
+      setError('Please provide your location');
+      return;
+    }
+
     setLoading(true);
     setError('');
     try {
       await aidRequestService.create({ ...formData, people: Number(formData.people) || 1 });
       setSubmitted(true);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || 'Failed to submit request');
     } finally {
       setLoading(false);
     }

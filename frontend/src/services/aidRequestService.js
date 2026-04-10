@@ -9,6 +9,8 @@ const aidRequestService = {
   getOne: (id) => api.get(`/requests/${id}`),
   create: (data) => api.post('/requests', data),
   update: (id, data) => api.put(`/requests/${id}`, data),
+  accept: (id) => api.put(`/requests/${id}/accept`),
+  complete: (id) => api.put(`/requests/${id}/complete`),
   remove: (id) => api.delete(`/requests/${id}`),
 };
 
