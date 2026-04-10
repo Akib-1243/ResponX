@@ -12,30 +12,37 @@ export const AppContextProvider =(props) => {
 
 
     axios.defaults.withCredentials = true;
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || ''
     const [isLoggedIn, setIsLoggedIn] = useState(false)
-    const[userData,setUserData] = useState(false)
+    const [userData, setUserData] = useState(false)
+    const [authLoading, setAuthLoading] = useState(true)
 
-    const getAuthState= async() => {
+    const getAuthState = async () => {
         try {
-            const {data} = await axios.get(`${backendUrl}/api/auth/is-auth`)
-            if(data.success){
+            const { data } = await axios.get(`${backendUrl}/api/auth/is-auth`)
+            if (data.success) {
                 setIsLoggedIn(true);
-                getUserData();
+                await getUserData();
             }
         } catch (error) {
-            toast.error(error.message)   
+            toast.error(error.message)
+        } finally {
+            setAuthLoading(false)
         }
     }
 
     const getUserData = async() => {
         try {
-            const {data} = await axios.get(`${backendUrl}/api/user/data`,)
-                data.success?setUserData(data.user):toast.error(data.message)
-            
-            
+            const {data} = await axios.get(`${backendUrl}/api/user/data`);
+            if (data.success) {
+                setUserData(data.user);
+                return data.user;
+            }
+            toast.error(data.message);
+            return null;
         } catch (error) {
-            toast.error(error.message)   
+            toast.error(error.message);
+            return null;
         }
     }
 
@@ -50,6 +57,7 @@ export const AppContextProvider =(props) => {
         setIsLoggedIn,
         userData,
         setUserData,
+        authLoading,
         getUserData
     }
 

@@ -19,33 +19,49 @@ const Login = () => {
 
   const[password,setPassword] = useState('')
 
+  const[role,setRole] = useState('requester')
+
   const onSubitHandler = async(e) => {
     try {
       e.preventDefault();
 
       axios.defaults.withCredentials = true 
       if(state === 'Sign Up'){
-       const {data} = await axios.post(`${backendUrl}/api/auth/register`,{ name, email, password })
+        const {data} = await axios.post(`${backendUrl}/api/auth/register`,{ name, email, password, role })
         if(data.success){
-          setIsLoggedIn(true);
-          getUserData();
-          navigate('/');
+          const user = await getUserData();
+          if (user) {
+            setIsLoggedIn(true);
+            if (user.role === 'admin') {
+              navigate('/admin');
+            } else {
+              navigate('/dashboard');
+            }
+          } else {
+            toast.error('Failed to verify auth data after registration.');
+          }
         }else{
           toast.error(data.message)
         }
 
       }else{
         const {data} = await axios.post(`${backendUrl}/api/auth/login`,{ email, password })
-          
         if(data.success){
-          setIsLoggedIn(true);
-          getUserData();
-          navigate('/');
+          const user = await getUserData();
+          if (user) {
+            setIsLoggedIn(true);
+            if (user.role === 'admin') {
+              navigate('/admin');
+            } else {
+              navigate('/dashboard');
+            }
+          } else {
+            toast.error('Failed to verify auth data after login.');
+          }
         }else{
           toast.error(data.message)
         }
-          
-        }
+      }
       
     } catch (error) {
       toast.error( error.message || 'Connection error')
@@ -69,13 +85,24 @@ const Login = () => {
 
           <form onSubmit={onSubitHandler} >
 
-            {state==='Sign Up' && (<div className='mb-4 flex items-center gap-3 w-full px-5 py-2.5
+            {state==='Sign Up' && (<div className='mb-4 flex flex-col gap-3 w-full px-5 py-2.5
             rounded-full bg-[#333A5C]'>
-              <img src={assets.person_icon} alt=""/>
-              <input onChange={e => setName(e.target.value)} value={name}
-
-               className='bg-transparent outline-none' type="text" placeholder='Full Name' required />
-              
+              <div className='flex items-center gap-3'>
+                <img src={assets.person_icon} alt=""/>
+                <input onChange={e => setName(e.target.value)} value={name}
+                  className='bg-transparent outline-none w-full' type="text" placeholder='Full Name' required />
+              </div>
+              <div className='flex flex-col gap-2 w-full'>
+                <label className='text-sm text-indigo-200'>Account role</label>
+                <select className='bg-[#22284B] text-white rounded-full px-4 py-2 outline-none' value={role} onChange={e => setRole(e.target.value)}>
+                  <option value='requester'>Requester</option>
+                  <option value='volunteer'>Volunteer</option>
+                  <option value='admin'>Admin</option>
+                </select>
+                {role === 'admin' && (
+                  <div className='text-xs text-yellow-300'>Admin accounts are privileged; choose only if you need admin access.</div>
+                )}
+              </div>
             </div>
           )}
             
