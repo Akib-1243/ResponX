@@ -28,6 +28,14 @@ const MissingPersonSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  photoUrl: {
+    type: String,
+    default: ''
+  },
+  photoPublicId: {
+    type: String,
+    default: ''
+  },
   contactNumber: {
     type: String,
     required: true

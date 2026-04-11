@@ -7,6 +7,7 @@ const photoService = {
   },
 
   saveMetadata: (photoData) => api.post('/photos', photoData),
+  delete: (id) => api.delete(`/photos/${id}`),
 };
 
 export default photoService;

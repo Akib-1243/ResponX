@@ -23,17 +23,17 @@ function CreateShelter() {
   const [submitted, setSubmitted] = useState(false);
   const [apiError, setApiError] = useState('');
 
-  const isAdmin = userData?.role === 'admin';
+  const isAdminOrVolunteer = userData?.role === 'admin' || userData?.role === 'volunteer';
 
   useEffect(() => {
     if (!authLoading) {
       if (!isLoggedIn) {
         navigate('/login');
-      } else if (!isAdmin) {
+      } else if (!isAdminOrVolunteer) {
         navigate('/dashboard');
       }
     }
-  }, [authLoading, isLoggedIn, isAdmin, navigate]);
+  }, [authLoading, isLoggedIn, isAdminOrVolunteer, navigate]);
 
   if (authLoading) {
     return (
@@ -46,17 +46,17 @@ function CreateShelter() {
     );
   }
 
-  if (!isAdmin) {
+  if (!isAdminOrVolunteer) {
     return (
       <div className="main-container">
         <div className="view-stub" style={{ maxWidth: 620, margin: '4rem auto' }}>
           <div className="view-stub-title">Access denied</div>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
-            Your account does not have admin privileges. Please login with an admin account.
+            Your account does not have admin or volunteer privileges. Please login with an appropriate account.
           </p>
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             <button className="btn btn-secondary" onClick={() => navigate('/dashboard')}>Dashboard</button>
-            <button className="btn btn-primary" onClick={() => navigate('/login')}>Login as Admin</button>
+            <button className="btn btn-primary" onClick={() => navigate('/login')}>Login</button>
           </div>
         </div>
       </div>

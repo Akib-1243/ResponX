@@ -13,7 +13,7 @@ const router = express.Router();
 router.get('/',     getAllShelters);           // public
 router.get('/:id',  getShelter);               // public
 
-router.post('/',         protect, restrictTo('admin'), createShelter);
+router.post('/',         protect, restrictTo('admin', 'volunteer'), createShelter);
 router.put('/:id',       protect, restrictTo('admin'), updateShelter);
 router.delete('/:id',    protect, restrictTo('admin'), deleteShelter);
 

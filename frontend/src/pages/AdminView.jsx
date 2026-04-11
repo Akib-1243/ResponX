@@ -324,7 +324,6 @@ function AdminView() {
           <h2 className="section-title" style={{ marginBottom: 0 }}>✦ Admin Panel</h2>
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             <button className="btn btn-secondary" onClick={() => setShowAdminForm(prev => !prev)}>{showAdminForm ? 'Hide Admin Form' : '+ New Admin User'}</button>
-            <button className="btn btn-primary" onClick={() => navigate('/admin/create-shelter')}>+ Create New Shelter</button>
           </div>
         </div>
         <div className="stats-grid">

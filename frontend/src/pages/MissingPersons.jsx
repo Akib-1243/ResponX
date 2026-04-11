@@ -22,6 +22,8 @@ function MissingPersons() {
     contactNumber: '',
     urgency: 'normal',
   });
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState('');
   const [formLoading, setFormLoading] = useState(false);
 
   useEffect(() => {
@@ -54,6 +56,21 @@ function MissingPersons() {
     }));
   };
 
+  const handlePhotoChange = (e) => {
+    const file = e.target.files?.[0] || null;
+    setPhotoFile(file);
+    if (!file) {
+      setPhotoPreview('');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPhotoPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isLoggedIn) {
@@ -63,7 +80,13 @@ function MissingPersons() {
 
     try {
       setFormLoading(true);
-      await missingPersonService.create(formData);
+      const payload = { ...formData };
+
+      if (photoFile) {
+        payload.photoData = photoPreview;
+      }
+
+      await missingPersonService.create(payload);
       toast.success('Missing person report submitted successfully!');
       setFormData({
         fullName: '',
@@ -75,6 +98,8 @@ function MissingPersons() {
         contactNumber: '',
         urgency: 'normal',
       });
+      setPhotoFile(null);
+      setPhotoPreview('');
       setShowForm(false);
       await fetchPersons();
     } catch (err) {
@@ -352,6 +377,23 @@ function MissingPersons() {
               </div>
 
               <div>
+                <label className="form-label block text-sm font-medium mb-2">Photo of Victim</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                  className="w-full text-sm text-gray-300 file:bg-purple-700 file:text-white file:px-3 file:py-2 file:rounded-full file:border-0"
+                />
+                {photoPreview && (
+                  <img
+                    src={photoPreview}
+                    alt="Victim preview"
+                    className="mt-3 w-full max-h-52 object-cover rounded-xl border border-[#2a2d3a]"
+                  />
+                )}
+              </div>
+
+              <div>
                 <label className="form-label block text-sm font-medium mb-2">Urgency Level</label>
                 <select
                   name="urgency"
@@ -417,6 +459,17 @@ function MissingPersons() {
                 </span>
               </div>
 
+              {/* Victim Photo */}
+              {person.photoUrl && (
+                <div className="mb-3 overflow-hidden rounded-xl border border-[#2a2d3a]">
+                  <img
+                    src={person.photoUrl}
+                    alt={`${person.fullName} photo`}
+                    className="w-full h-48 object-cover"
+                  />
+                </div>
+              )}
+
               {/* Location */}
               <div className="mb-2 text-sm">
                 <p className="text-gray-400">📍 <span className="text-gray-300">{person.lastLocation}</span></p>
@@ -479,6 +532,15 @@ function MissingPersons() {
             </div>
 
             <div className="space-y-3 text-sm mb-6">
+              {selectedPerson.photoUrl && (
+                <div className="mb-3 overflow-hidden rounded-xl border border-[#2a2d3a]">
+                  <img
+                    src={selectedPerson.photoUrl}
+                    alt={`${selectedPerson.fullName} photo`}
+                    className="w-full object-cover max-h-64"
+                  />
+                </div>
+              )}
               <div>
                 <p className="text-gray-400">Age</p>
                 <p className="text-gray-200">{selectedPerson.age} years old • {selectedPerson.gender}</p>

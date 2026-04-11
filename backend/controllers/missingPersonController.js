@@ -1,4 +1,5 @@
 import MissingPersonModel from '../models/MissingPerson.js';
+import { cloudinary } from '../config/cloudinary.js';
 
 /* GET /api/missing-persons */
 export const getAllMissingPersons = async (req, res) => {
@@ -44,11 +45,34 @@ export const getMissingPerson = async (req, res) => {
 /* POST /api/missing-persons (authenticated) */
 export const createMissingPerson = async (req, res) => {
   try {
-    const { fullName, age, gender, vulnerability, lastLocation, description, contactNumber, urgency } = req.body;
+    const {
+      fullName,
+      age,
+      gender,
+      vulnerability,
+      lastLocation,
+      description,
+      contactNumber,
+      urgency,
+      photoData,
+    } = req.body;
 
     // Validate required fields
     if (!fullName || !age || !gender || !lastLocation || !contactNumber) {
       return res.status(400).json({ success: false, message: 'Missing required fields.' });
+    }
+
+    let photoUrl = '';
+    let photoPublicId = '';
+
+    if (photoData) {
+      const uploadResponse = await cloudinary.uploader.upload(photoData, {
+        folder: 'responx/missing-persons',
+        public_id: `missing_person_${Date.now()}`,
+      });
+
+      photoUrl = uploadResponse.secure_url;
+      photoPublicId = uploadResponse.public_id;
     }
 
     const newPerson = await MissingPersonModel.create({
@@ -58,11 +82,13 @@ export const createMissingPerson = async (req, res) => {
       vulnerability: vulnerability || 'none',
       lastLocation,
       description: description || '',
+      photoUrl,
+      photoPublicId,
       contactNumber,
       urgency: urgency || 'normal',
       status: 'missing',
       reportedBy: req.user._id,
-      reportedAt: new Date()
+      reportedAt: new Date(),
     });
 
     await newPerson.populate('reportedBy', 'name email');
