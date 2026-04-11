@@ -122,8 +122,75 @@ function AdminView() {
     );
   }
 
-  const approve = id => setUsers(prev => prev.map(u => u.id === id ? { ...u, status: 'verified' } : u));
-  const reject  = id => setUsers(prev => prev.map(u => u.id === id ? { ...u, status: 'rejected' } : u));
+  const approve = async (id) => {
+    try {
+      const response = await userService.updateStatus(id, 'verified');
+      if (response?.data?.success) {
+        setUsers(prev => prev.map(u => u._id === id ? { ...u, status: 'verified', isAccountVerified: true } : u));
+      }
+    } catch (err) {
+      console.error('Approve failed:', err?.response?.data?.message || err.message || err);
+    }
+  };
+
+  const reject = async (id) => {
+    try {
+      const response = await userService.updateStatus(id, 'rejected');
+      if (response?.data?.success) {
+        setUsers(prev => prev.map(u => u._id === id ? { ...u, status: 'rejected', isAccountVerified: false } : u));
+      }
+    } catch (err) {
+      console.error('Reject failed:', err?.response?.data?.message || err.message || err);
+    }
+  };
+
+  const deleteUser = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await userService.remove(id);
+      if (response?.data?.success) {
+        setUsers(prev => prev.filter(u => u._id !== id));
+      }
+    } catch (err) {
+      console.error('Delete failed:', err?.response?.data?.message || err.message || err);
+      alert('Failed to delete user: ' + (err?.response?.data?.message || err.message || err));
+    }
+  };
+
+  const deleteShelter = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this shelter? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await shelterService.remove(id);
+      if (response?.data?.success) {
+        setShelters(prev => prev.filter(s => s._id !== id));
+      }
+    } catch (err) {
+      console.error('Delete failed:', err?.response?.data?.message || err.message || err);
+      alert('Failed to delete shelter: ' + (err?.response?.data?.message || err.message || err));
+    }
+  };
+
+  const deleteRequest = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this request? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await aidRequestService.remove(id);
+      if (response?.data?.success) {
+        setRequests(prev => prev.filter(r => r._id !== id));
+      }
+    } catch (err) {
+      console.error('Delete failed:', err?.response?.data?.message || err.message || err);
+      alert('Failed to delete request: ' + (err?.response?.data?.message || err.message || err));
+    }
+  };
 
   const handlePhotoFileChange = (event) => {
     const file = event.target.files?.[0];
@@ -393,11 +460,13 @@ function AdminView() {
                         <td style={{ padding: '0.7rem 0.75rem' }}>
                           {user.status === 'pending' ? (
                             <div style={{ display: 'flex', gap: '0.4rem' }}>
-                              <button className="btn btn-primary" style={{ padding: '0.25rem 0.65rem', fontSize: '0.75rem' }} onClick={() => approve(user.id)}>Approve</button>
-                              <button className="btn btn-secondary" style={{ padding: '0.25rem 0.65rem', fontSize: '0.75rem' }} onClick={() => reject(user.id)}>Reject</button>
+                              <button className="btn btn-primary" style={{ padding: '0.25rem 0.65rem', fontSize: '0.75rem' }} onClick={() => approve(user._id)}>Approve</button>
+                              <button className="btn btn-secondary" style={{ padding: '0.25rem 0.65rem', fontSize: '0.75rem' }} onClick={() => reject(user._id)}>Reject</button>
                             </div>
                           ) : (
-                            <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>—</span>
+                            <div style={{ display: 'flex', gap: '0.4rem' }}>
+                              <button className="btn btn-danger" style={{ padding: '0.25rem 0.65rem', fontSize: '0.75rem' }} onClick={() => deleteUser(user._id)}>Delete</button>
+                            </div>
                           )}
                         </td>
                       </tr>
@@ -428,7 +497,10 @@ function AdminView() {
                         <div style={{ fontSize: '0.825rem', fontWeight: 600, color: 'var(--text-primary)' }}>{shelter.name}</div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{shelter.location} • {shelter.capacity}/{shelter.total} capacity</div>
                       </div>
-                      <span className={`badge ${shelter.open ? 'badge-verified' : 'badge-pending'}`}>{shelter.open ? 'Open' : 'Closed'}</span>
+                      <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                        <span className={`badge ${shelter.open ? 'badge-verified' : 'badge-pending'}`}>{shelter.open ? 'Open' : 'Closed'}</span>
+                        <button className="btn btn-danger" style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem' }} onClick={() => deleteShelter(shelter._id)}>×</button>
+                      </div>
                     </div>
                   ))}
                   {shelters.length > 5 && (
@@ -504,11 +576,14 @@ function AdminView() {
                         <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{req.location || req.address || 'No location provided'}</div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Submitted by {req.submittedBy?.name || req.submittedBy?.email || 'Unknown'}</div>
                       </div>
-                      <div style={{ display: 'grid', gap: '0.25rem', alignItems: 'flex-end', textAlign: 'right', flexShrink: 0 }}>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(req.createdAt).toLocaleDateString()}</span>
-                        <span className={`badge ${req.status === 'open' ? 'badge-pending' : req.status === 'in-progress' ? 'badge-urgent' : 'badge-verified'}`}>
-                          {req.status ? req.status.charAt(0).toUpperCase() + req.status.slice(1) : 'Unknown'}
-                        </span>
+                      <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexDirection: 'column' }}>
+                        <div style={{ display: 'grid', gap: '0.25rem', alignItems: 'flex-end', textAlign: 'right', flexShrink: 0 }}>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(req.createdAt).toLocaleDateString()}</span>
+                          <span className={`badge ${req.status === 'open' ? 'badge-pending' : req.status === 'in-progress' ? 'badge-urgent' : 'badge-verified'}`}>
+                            {req.status ? req.status.charAt(0).toUpperCase() + req.status.slice(1) : 'Unknown'}
+                          </span>
+                        </div>
+                        <button className="btn btn-danger" style={{ padding: '0.15rem 0.4rem', fontSize: '0.65rem' }} onClick={() => deleteRequest(req._id)}>×</button>
                       </div>
                     </div>
                   ))}

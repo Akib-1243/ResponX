@@ -10,6 +10,8 @@ import aidRequestRouter from './routes/aidRequestRoutes.js';
 import shelterRouter from './routes/shelterRoutes.js';
 import volunteerRouter from './routes/volunteerRoutes.js';
 import photoRouter from './routes/photoRoutes.js';
+import statsRouter from './routes/statsRoutes.js';
+import missingPersonRouter from './routes/missingPersonRoutes.js';
 
 // Change DNS
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
@@ -37,6 +39,8 @@ const startServer = async () => {
         app.use("/api/shelters", shelterRouter);
         app.use("/api/tasks", volunteerRouter);
         app.use("/api/photos", photoRouter);
+        app.use("/api/missing-persons", missingPersonRouter);
+        app.use("/api/stats", statsRouter);
 
         app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
     } catch (error) {

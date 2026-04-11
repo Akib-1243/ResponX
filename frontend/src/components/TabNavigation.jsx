@@ -11,6 +11,7 @@ function TabNavigation() {
     ['/aid-request', '⚠  Request Aid'],
     ...(canViewVolunteer ? [['/volunteer', '↗  Volunteer Hub']] : []),
     ['/shelters', '⌂  Shelters Map'],
+    ['/missing-persons', '👁  Missing Persons'],
   ];
 
   if (isAdmin) {

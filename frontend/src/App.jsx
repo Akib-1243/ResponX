@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import AdminLogin from './pages/AdminLogin';
 import EmailVerify from './pages/EmailVerify';
 import ResetPassword from './pages/ResetPassword';
@@ -11,6 +12,7 @@ import VolunteerDashboard from './pages/VolunteerDashboard';
 import SheltersView from './pages/SheltersView';
 import AdminView from './pages/AdminView';
 import CreateShelter from './pages/CreateShelter';
+import MissingPersons from './pages/MissingPersons';
 import Navbar from './components/Navbar';
 import TabNavigation from './components/TabNavigation';
 import { ToastContainer } from 'react-toastify';
@@ -33,6 +35,7 @@ const App = () => {
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
         <Route path='/admin-login' element={<AdminLogin />} />
         <Route path='/email-verify' element={<EmailVerify />} />
         <Route path='/reset-password' element={<ResetPassword />} />
@@ -41,6 +44,7 @@ const App = () => {
         <Route path='/aid-request' element={<FeatureLayout><AidRequest /></FeatureLayout>} />
         <Route path='/volunteer' element={<FeatureLayout><VolunteerDashboard /></FeatureLayout>} />
         <Route path='/shelters' element={<FeatureLayout><SheltersView /></FeatureLayout>} />
+        <Route path='/missing-persons' element={<FeatureLayout><MissingPersons /></FeatureLayout>} />
         <Route path='/admin' element={<FeatureLayout><AdminView /></FeatureLayout>} />
         <Route path='/admin/create-shelter' element={<FeatureLayout><CreateShelter /></FeatureLayout>} />
       </Routes>
