@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { AppContent } from '../context/AppContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { assets } from '../assets/assets';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -40,54 +39,143 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className='flex items-center justify-center min-h-screen px-6 sm:px-0 bg-gradient-to-br from-gray-900 to-slate-800'>
-      <img
-        onClick={() => navigate('/')}
-        src={assets.logo}
-        alt='ResponX'
-        className='absolute left-5 sm:left-20 top-5 w-28 sm:w-32 cursor-pointer'
-      />
-      <div className='bg-slate-950 p-10 rounded-lg shadow-xl w-full sm:w-96 text-indigo-100'>
-        <h2 className='text-3xl font-semibold text-white text-center mb-3'>Admin Access</h2>
-        <p className='text-center text-sm mb-6'>This page is for authorized administrators only. Do not share this URL publicly.</p>
-
-        <form onSubmit={handleSubmit}>
-          <div className='mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#1e293b]'>
-            <img src={assets.mail_icon} alt='Email' />
-            <input
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
-              className='bg-transparent outline-none w-full text-white'
-              type='email'
-              placeholder='Admin email'
-              required
-            />
-          </div>
-          <div className='mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#1e293b]'>
-            <img src={assets.lock_icon} alt='Password' />
-            <input
-              onChange={(e) => setPassword(e.target.value)}
-              value={password}
-              className='bg-transparent outline-none w-full text-white'
-              type='password'
-              placeholder='Password'
-              required
-            />
+    <div className="min-h-screen bg-[#0a0c16] flex items-center justify-content-center p-6">
+      <div className="w-full max-w-[900px] flex border border-[#1e2130] rounded-xl overflow-hidden min-h-[540px]">
+        {/* Left Panel - Branding */}
+        <div className="hidden md:flex w-[42%] bg-[#0d0f1a] border-r border-[#1e2130] p-10 flex-col justify-between">
+          {/* Logo Row */}
+          <div className="flex items-center gap-2.5">
+            <div className="w-[38px] h-[38px] bg-[#7c3aed] rounded-[10px] flex items-center justify-center">
+              <span className="text-white font-bold text-base">RX</span>
+            </div>
+            <div>
+              <div className="text-white font-bold text-lg">ResponX</div>
+              <div className="text-[#555] text-[11px]">Emergency Response Platform</div>
+            </div>
           </div>
 
-          <button
-            className='w-full py-2.5 rounded-full bg-gradient-to-r from-indigo-600 to-slate-900 text-white font-medium'
-            type='submit'
-            disabled={loading}
-          >
-            {loading ? 'Signing in…' : 'Admin Sign In'}
-          </button>
-        </form>
+          {/* Middle Content */}
+          <div className="flex-1 flex flex-col justify-center">
+            <h1 className="text-white text-2xl font-bold mb-4 leading-tight">
+              Administrator<br />Control Centre
+            </h1>
+            <p className="text-[#555] text-sm mb-8 leading-relaxed">
+              Restricted access area. All login attempts are logged and monitored for security compliance.
+            </p>
 
-        <p className='text-gray-400 text-center text-xs mt-4'>
-          If you are not an admin, please use the{' '}
-          <span onClick={() => navigate('/login')} className='text-blue-400 cursor-pointer underline'>regular login</span> page.
-        </p>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-7 h-7 bg-[#2d1a0a] rounded-lg flex items-center justify-center">
+                  <span className="text-orange-400 text-sm">🔐</span>
+                </div>
+                <span className="text-[#888] text-[12px]">Two-factor authentication enforced</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-7 h-7 bg-[#1e1040] rounded-lg flex items-center justify-center">
+                  <span className="text-[#7c3aed] text-sm">📊</span>
+                </div>
+                <span className="text-[#888] text-[12px]">Full audit trail of all admin actions</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-7 h-7 bg-[#0a2d1a] rounded-lg flex items-center justify-center">
+                  <span className="text-green-400 text-sm">⏰</span>
+                </div>
+                <span className="text-[#888] text-[12px]">Sessions expire after 2 hours</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="text-[#333] text-[11px]">
+            © 2026 ResponX · Emergency Response Platform
+          </div>
+        </div>
+
+        {/* Right Panel - Form */}
+        <div className="w-full md:w-[58%] bg-[#0a0c16] p-10 flex flex-col justify-center">
+          {/* Mobile Logo - Only visible on small screens */}
+          <div className="flex items-center gap-2.5 mb-8 md:hidden">
+            <div className="w-[38px] h-[38px] bg-[#7c3aed] rounded-[10px] flex items-center justify-center">
+              <span className="text-white font-bold text-base">RX</span>
+            </div>
+            <div>
+              <div className="text-white font-bold text-lg">ResponX</div>
+              <div className="text-[#555] text-[11px]">Emergency Response Platform</div>
+            </div>
+          </div>
+
+          <div className="max-w-md mx-auto w-full">
+            {/* Admin Badge */}
+            <div className="inline-flex items-center gap-1.5 bg-[#1a0a2e] border border-[#3d1a6e] rounded px-3 py-1.5 mb-5">
+              <span className="text-sm">🔐</span>
+              <span className="text-[#a78bfa] text-[11px] font-medium">Administrator Access Only</span>
+            </div>
+
+            <h2 className="text-white text-xl font-bold mb-2">Admin sign in</h2>
+            <p className="text-[#555] text-sm mb-6">Enter your administrator credentials to continue</p>
+
+            {/* Warning Box */}
+            <div className="bg-[#1a0a0a] border border-[#3d0a0a] rounded-lg p-3.5 mb-6">
+              <p className="text-[#f87171] text-[12px] leading-relaxed">
+                ⚠ This portal is for authorized system administrators only. Do not share this URL publicly.
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Email */}
+              <div>
+                <label className="block text-[11px] font-semibold text-[#555] uppercase tracking-wider mb-1.5">
+                  Admin email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@responx.org"
+                  className="w-full bg-[#111320] border border-[#1e2130] rounded-lg px-3.5 py-2.5 text-white text-sm placeholder-[#333] focus:border-[#7c3aed] outline-none"
+                  required
+                />
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block text-[11px] font-semibold text-[#555] uppercase tracking-wider mb-1.5">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-[#111320] border border-[#1e2130] rounded-lg px-3.5 py-2.5 text-white text-sm placeholder-[#333] focus:border-[#7c3aed] outline-none"
+                  required
+                />
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-[#991b1b] hover:bg-[#7f1d1d] text-white font-semibold text-sm py-3 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {loading ? 'Accessing...' : 'Access Admin Panel'}
+              </button>
+            </form>
+
+            {/* Divider */}
+            <hr className="border-[#1e2130] my-3.5" />
+
+            {/* Return to Regular Login */}
+            <p className="text-center">
+              <span
+                onClick={() => navigate('/login')}
+                className="text-[#7c3aed] text-sm cursor-pointer hover:underline"
+              >
+                Return to regular login
+              </span>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

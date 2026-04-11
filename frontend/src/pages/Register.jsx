@@ -4,11 +4,13 @@ import { AppContent } from '../context/AppContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const Login = () => {
+const Register = () => {
   const navigate = useNavigate();
   const { backendUrl, setIsLoggedIn, getUserData } = useContext(AppContent);
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('requester');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -17,7 +19,13 @@ const Login = () => {
 
     try {
       axios.defaults.withCredentials = true;
-      const { data } = await axios.post(`${backendUrl}/api/auth/login`, { email, password });
+      const { data } = await axios.post(`${backendUrl}/api/auth/register`, {
+        name,
+        email,
+        password,
+        role
+      });
+
       if (data.success) {
         const user = await getUserData();
         if (user) {
@@ -28,7 +36,7 @@ const Login = () => {
             navigate('/dashboard');
           }
         } else {
-          toast.error('Failed to verify auth data after login.');
+          toast.error('Failed to verify auth data after registration.');
         }
       } else {
         toast.error(data.message);
@@ -59,30 +67,30 @@ const Login = () => {
           {/* Middle Content */}
           <div className="flex-1 flex flex-col justify-center">
             <h1 className="text-white text-2xl font-bold mb-4 leading-tight">
-              Coordinate relief.<br />Save lives faster.
+              Join the<br />response network.
             </h1>
             <p className="text-[#555] text-sm mb-8 leading-relaxed">
-              Real-time shelter tracking, volunteer coordination, and aid request management in one platform.
+              Whether you need help or want to provide it — create your account and connect with your community.
             </p>
 
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <div className="w-7 h-7 bg-[#1e1040] rounded-lg flex items-center justify-center">
-                  <span className="text-[#7c3aed] text-sm">🏠</span>
+                  <span className="text-[#7c3aed] text-sm">📦</span>
                 </div>
-                <span className="text-[#888] text-[12px]">Live shelter capacity updates</span>
+                <span className="text-[#888] text-[12px]">Requesters get immediate aid routing</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-7 h-7 bg-[#0a2d1a] rounded-lg flex items-center justify-center">
-                  <span className="text-green-400 text-sm">👥</span>
+                  <span className="text-green-400 text-sm">✅</span>
                 </div>
-                <span className="text-[#888] text-[12px]">Verified volunteer network</span>
+                <span className="text-[#888] text-[12px]">Volunteers earn verified trust badges</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-7 h-7 bg-[#2d1a0a] rounded-lg flex items-center justify-center">
-                  <span className="text-orange-400 text-sm">⚡</span>
+                  <span className="text-orange-400 text-sm">🔒</span>
                 </div>
-                <span className="text-[#888] text-[12px]">Instant aid request routing</span>
+                <span className="text-[#888] text-[12px]">Secure, verified accounts only</span>
               </div>
             </div>
           </div>
@@ -107,48 +115,84 @@ const Login = () => {
           </div>
 
           <div className="max-w-md mx-auto w-full">
-            <h2 className="text-white text-xl font-bold mb-2">Welcome back</h2>
-            <p className="text-[#555] text-sm mb-8">Sign in to your ResponX account to continue</p>
+            <h2 className="text-white text-xl font-bold mb-2">Create your account</h2>
+            <p className="text-[#555] text-sm mb-8">Get started with ResponX in under a minute</p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Email */}
+              {/* Full Name */}
               <div>
                 <label className="block text-[11px] font-semibold text-[#555] uppercase tracking-wider mb-1.5">
-                  Email address
+                  Full name
                 </label>
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter your full name"
                   className="w-full bg-[#111320] border border-[#1e2130] rounded-lg px-3.5 py-2.5 text-white text-sm placeholder-[#333] focus:border-[#7c3aed] outline-none"
                   required
                 />
               </div>
 
-              {/* Password */}
+              {/* Role Selector */}
               <div>
                 <label className="block text-[11px] font-semibold text-[#555] uppercase tracking-wider mb-1.5">
-                  Password
+                  Account type
                 </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-[#111320] border border-[#1e2130] rounded-lg px-3.5 py-2.5 text-white text-sm placeholder-[#333] focus:border-[#7c3aed] outline-none"
-                  required
-                />
+                <div className="grid grid-cols-2 gap-2">
+                  <div
+                    onClick={() => setRole('requester')}
+                    className={`border rounded-lg p-3 cursor-pointer transition-all ${
+                      role === 'requester'
+                        ? 'border-[#7c3aed] bg-[#1a0a35]'
+                        : 'border-[#1e2130] bg-[#111320]'
+                    }`}
+                  >
+                    <div className="text-white text-sm font-semibold mb-1">Requester</div>
+                    <div className="text-[#555] text-[11px]">I need aid or shelter</div>
+                  </div>
+                  <div
+                    onClick={() => setRole('volunteer')}
+                    className={`border rounded-lg p-3 cursor-pointer transition-all ${
+                      role === 'volunteer'
+                        ? 'border-[#7c3aed] bg-[#1a0a35]'
+                        : 'border-[#1e2130] bg-[#111320]'
+                    }`}
+                  >
+                    <div className="text-white text-sm font-semibold mb-1">Volunteer</div>
+                    <div className="text-[#555] text-[11px]">I want to help others</div>
+                  </div>
+                </div>
               </div>
 
-              {/* Forgot Password Link */}
-              <div className="text-right -mt-4">
-                <span
-                  onClick={() => navigate('/reset-password')}
-                  className="text-[#7c3aed] text-xs cursor-pointer hover:underline"
-                >
-                  Forgot your password?
-                </span>
+              {/* Email and Password Row */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-semibold text-[#555] uppercase tracking-wider mb-1.5">
+                    Email address
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="w-full bg-[#111320] border border-[#1e2130] rounded-lg px-3.5 py-2.5 text-white text-sm placeholder-[#333] focus:border-[#7c3aed] outline-none"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold text-[#555] uppercase tracking-wider mb-1.5">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full bg-[#111320] border border-[#1e2130] rounded-lg px-3.5 py-2.5 text-white text-sm placeholder-[#333] focus:border-[#7c3aed] outline-none"
+                    required
+                  />
+                </div>
               </div>
 
               {/* Submit Button */}
@@ -157,18 +201,18 @@ const Login = () => {
                 disabled={loading}
                 className="w-full bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-semibold text-sm py-3 rounded-lg transition-colors disabled:opacity-50"
               >
-                {loading ? 'Signing in...' : 'Sign in to ResponX'}
+                {loading ? 'Creating account...' : 'Create account'}
               </button>
             </form>
 
-            {/* Switch to Register */}
+            {/* Switch to Login */}
             <p className="text-[#555] text-sm text-center mt-6">
-              New to ResponX?{' '}
+              Already have an account?{' '}
               <span
-                onClick={() => navigate('/register')}
+                onClick={() => navigate('/login')}
                 className="text-[#7c3aed] cursor-pointer hover:underline"
               >
-                Create an account
+                Sign in
               </span>
             </p>
           </div>
@@ -178,5 +222,4 @@ const Login = () => {
   );
 };
 
-export default Login;
-
+export default Register;
