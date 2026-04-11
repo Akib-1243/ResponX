@@ -12,6 +12,7 @@
   "dependencies": {
     "axios": "^1.14.0",
     "react": "^19.2.4",
+    "react-carbon-footprint": "^1.0.0",
     "react-dom": "^19.2.4",
     "react-router-dom": "^7.13.2",
     "react-toastify": "^11.0.5"

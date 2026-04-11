@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCarbonFootprint } from 'react-carbon-footprint';
 import shelterService from '../services/shelterService';
 import aidRequestService from '../services/aidRequestService';
 import photoService from '../services/photoService';
@@ -11,6 +12,7 @@ import { toast } from 'react-toastify';
 function DashboardView() {
   const navigate = useNavigate();
   const { isLoggedIn, userData } = useContext(AppContent);
+  const [gCO2, bytesTransferred] = useCarbonFootprint();
   const isAdmin = userData?.role === 'admin';
   const [shelters, setShelters] = useState([]);
   const [requests, setRequests] = useState([]);
@@ -212,6 +214,7 @@ function DashboardView() {
             { title: 'People Sheltered', value: totalOccupied, icon: '↑', color: '#10b981', delta: '+27 today', deltaColor: '#22c55e' },
             { title: 'Missing Persons', value: missingCount, icon: '👁', color: '#f87171', border: '#3d1a6e', delta: `${criticalCount} critical`, deltaColor: '#f87171' },
             { title: 'Found Safe', value: foundCount, icon: '✓', color: '#22c55e', border: '#14532d', delta: `+${foundThisWeek} this week`, deltaColor: '#22c55e' },
+            { title: 'CO2 Emissions', value: `${gCO2.toFixed(2)}g`, icon: '🌱', color: '#10b981', delta: `${(bytesTransferred / 1024).toFixed(2)} KB`, deltaColor: '#10b981' },
           ].map((stat, index) => (
             <div
               key={index}

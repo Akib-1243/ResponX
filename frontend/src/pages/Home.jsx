@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCarbonFootprint } from 'react-carbon-footprint';
 import statsService from '../services/statsService';
 import missingPersonService from '../services/missingPersonService';
 import photoService from '../services/photoService';
@@ -8,6 +9,7 @@ import { AppContent } from '../context/AppContext';
 const Home = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useContext(AppContent);
+  const [gCO2, bytesTransferred] = useCarbonFootprint();
   const [shelters, setShelters] = useState([]);
   const [requests, setRequests] = useState([]);
   const [stats, setStats] = useState({
@@ -180,16 +182,18 @@ const Home = () => {
               </button>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
               {[
                 { title: 'Active shelters', value: totalShelters, accent: '#6366f1' },
                 { title: 'Open requests', value: openRequests, accent: '#f97316' },
                 { title: 'Current missing', value: activeMissingCount, accent: '#ef4444' },
                 { title: 'Field updates', value: photos.length, accent: '#38bdf8' },
+                { title: 'CO2 Emissions', value: `${gCO2.toFixed(2)}g`, subtitle: `${(bytesTransferred / 1024).toFixed(2)} KB`, accent: '#10b981' },
               ].map((card) => (
                 <div key={card.title} className="rounded-[18px] border border-[#1e2130] bg-[#0d0f1a] p-5 shadow-[0_12px_30px_rgba(15,23,42,0.35)]">
                   <div className="mb-2 text-[11px] text-[#8b95ae] uppercase tracking-[0.18em]">{card.title}</div>
                   <div className="text-[2rem] font-semibold text-white">{card.value}</div>
+                  {card.subtitle && <div className="mt-1 text-[10px] text-[#666]">{card.subtitle} transferred</div>}
                 </div>
               ))}
             </div>

@@ -12,6 +12,7 @@ function TabNavigation() {
     ...(canViewVolunteer ? [['/volunteer', '↗  Volunteer Hub']] : []),
     ['/shelters', '⌂  Shelters Map'],
     ['/missing-persons', '👁  Missing Persons'],
+    ['/carbon-report', '🌱  Carbon Report'],
   ];
 
   if (isAdmin) {

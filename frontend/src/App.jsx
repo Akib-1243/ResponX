@@ -13,6 +13,7 @@ import SheltersView from './pages/SheltersView';
 import AdminView from './pages/AdminView';
 import CreateShelter from './pages/CreateShelter';
 import MissingPersons from './pages/MissingPersons';
+import CarbonReport from './pages/CarbonReport';
 import Navbar from './components/Navbar';
 import TabNavigation from './components/TabNavigation';
 import { ToastContainer } from 'react-toastify';
@@ -107,7 +108,8 @@ const App = () => {
         <Route path='/shelters' element={<FeatureLayout><SheltersView /></FeatureLayout>} />
         <Route path='/missing-persons' element={<FeatureLayout><MissingPersons /></FeatureLayout>} />
         <Route path='/admin' element={<FeatureLayout><AdminView /></FeatureLayout>} />
-        <Route path='/admin/create-shelter' element={<FeatureLayout><CreateShelter /></FeatureLayout>} />
+        <Route path='/create-shelter' element={<FeatureLayout><CreateShelter /></FeatureLayout>} />
+        <Route path='/carbon-report' element={<FeatureLayout><CarbonReport /></FeatureLayout>} />
       </Routes>
     </div>
   );

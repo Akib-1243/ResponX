@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import shelterService from '../services/shelterService';
+import { AppContent } from '../context/AppContext.jsx';
 
 const AMENITY_ICONS = {
   Food: '🍽', Medical: '🏥', 'Wi-Fi': '📶',
@@ -9,6 +11,8 @@ const STATUS_LABEL = { high: 'Near Full', medium: 'Moderate', low: 'Available' }
 const STATUS_COLOR = { high: '#e03535', medium: '#f97316', low: '#10b981' };
 
 function SheltersView() {
+  const navigate = useNavigate();
+  const { userData } = useContext(AppContent);
   const [shelters, setShelters] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState('');
@@ -76,6 +80,9 @@ function SheltersView() {
             <button key={f} className={`filter-btn ${filter === f ? 'active' : ''}`} onClick={() => setFilter(f)}>{f}</button>
           ))}
         </div>
+        {(userData?.role === 'admin' || userData?.role === 'volunteer') && (
+          <button className="btn btn-primary" onClick={() => navigate('/create-shelter')}>+ Add Shelter</button>
+        )}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '1.5rem', alignItems: 'start' }}>
