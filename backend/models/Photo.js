@@ -9,6 +9,14 @@ const photoSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  category: {
+    type: String,
+    default: 'Aid',
+  },
+  publicId: {
+    type: String,
+    default: '',
+  },
   uploadedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

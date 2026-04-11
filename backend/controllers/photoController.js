@@ -3,7 +3,7 @@ import Photo from '../models/Photo.js';
 
 export const createPhoto = async (req, res) => {
   try {
-    const { data, caption } = req.body;
+    const { data, caption, category } = req.body;
 
     if (!data) {
       return res.status(400).json({ success: false, message: 'Photo data is required' });
@@ -22,7 +22,9 @@ export const createPhoto = async (req, res) => {
     // Save metadata to database
     const photo = await Photo.create({
       url: uploadResponse.secure_url,
+      publicId: uploadResponse.public_id || '',
       caption: caption?.trim() || 'Untitled',
+      category: category?.trim() || 'Aid',
       uploadedBy: req.user?._id,
     });
 
@@ -38,6 +40,28 @@ export const createPhoto = async (req, res) => {
   }
 };
 
+export const deletePhoto = async (req, res) => {
+  try {
+    const photo = await Photo.findById(req.params.id);
+    if (!photo) {
+      return res.status(404).json({ success: false, message: 'Photo not found.' });
+    }
+
+    if (photo.publicId) {
+      try {
+        await cloudinary.uploader.destroy(photo.publicId);
+      } catch (err) {
+        console.warn('Cloudinary deletion failed, continuing to remove DB record:', err.message);
+      }
+    }
+
+    await photo.deleteOne();
+    return res.status(200).json({ success: true, message: 'Photo deleted successfully.' });
+  } catch (error) {
+    console.error('Photo delete error:', error);
+    return res.status(500).json({ success: false, message: error.message || 'Failed to delete photo' });
+  }
+};
 
 export const getAllPhotos = async (req, res) => {
   try {
