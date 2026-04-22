@@ -1,9 +1,9 @@
+
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import shelterService from '../services/shelterService';
 import aidRequestService from '../services/aidRequestService';
 import userService from '../services/userService';
-import photoService from '../services/photoService';
 import { AppContent } from '../context/AppContext.jsx';
 
 
@@ -13,20 +13,12 @@ function AdminView() {
   const [users, setUsers]            = useState([]);
   const [shelters, setShelters]      = useState([]);
   const [requests, setRequests]      = useState([]);
-  const [photos, setPhotos]          = useState([]);
-  const [photoFile, setPhotoFile]    = useState(null);
-  const [photoCaption, setPhotoCaption] = useState('');
-  const [uploadLoading, setUploadLoading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState('');
-  const [photoError, setPhotoError] = useState('');
   const [loadingShelters, setLoadingShelters] = useState(true);
   const [loadingRequests, setLoadingRequests] = useState(true);
   const [loadingUsers, setLoadingUsers] = useState(true);
-  const [loadingPhotos, setLoadingPhotos] = useState(true);
   const [errorShelters, setErrorShelters]     = useState('');
   const [errorRequests, setErrorRequests]     = useState('');
   const [errorUsers, setErrorUsers]     = useState('');
-  const [errorPhotos, setErrorPhotos]     = useState('');
   const [roleFilter, setRoleFilter]  = useState('All');
   const [search, setSearch]          = useState('');
   const [showAdminForm, setShowAdminForm] = useState(false);
@@ -93,22 +85,9 @@ function AdminView() {
       }
     };
 
-    const fetchPhotos = async () => {
-      try {
-        const response = await photoService.getAll();
-        setPhotos(response.data.data || []);
-      } catch (err) {
-        setErrorPhotos('Failed to load photos');
-        console.error(err);
-      } finally {
-        setLoadingPhotos(false);
-      }
-    };
-
     fetchShelters();
     fetchRequests();
     fetchUsers();
-    fetchPhotos();
   }, [authLoading, isLoggedIn, isAdmin]);
 
   if (authLoading) {
@@ -192,89 +171,7 @@ function AdminView() {
     }
   };
 
-  const handlePhotoFileChange = (event) => {
-    const file = event.target.files?.[0];
-    console.log('File selected:', file?.name);
-    setPhotoFile(file || null);
-    setUploadStatus('');
-    setPhotoError('');
-  };
 
-  const uploadPhoto = async () => {
-    console.log('=== UPLOAD PHOTO CLICKED ===');
-    console.log('Current photoFile:', photoFile);
-    console.log('Button state - uploadLoading:', uploadLoading, 'photoFile exists:', !!photoFile);
-    
-    if (!photoFile) {
-      const errMsg = 'Please select a photo file first.';
-      console.error('ERROR:', errMsg);
-      setPhotoError(errMsg);
-      return;
-    }
-
-    console.log('File info:', { name: photoFile.name, size: photoFile.size, type: photoFile.type });
-    
-    setUploadLoading(true);
-    setUploadStatus('Converting file to base64...');
-    setPhotoError('');
-
-    const reader = new FileReader();
-    
-    reader.onload = async () => {
-      try {
-        const base64String = reader.result;
-        console.log('✓ Base64 conversion complete, file size in bytes:', base64String.length);
-        
-        setUploadStatus('Uploading to Cloudinary...');
-        console.log('Sending POST request to /api/photos');
-        
-        const uploadResponse = await photoService.saveMetadata({
-          data: base64String,
-          caption: photoCaption.trim() || 'Untitled',
-        });
-
-        console.log('Backend response received:', uploadResponse?.data);
-
-        if (!uploadResponse?.data?.success) {
-          const msg = uploadResponse?.data?.message || 'Failed to upload photo.';
-          console.error('Backend upload failed:', msg);
-          throw new Error(msg);
-        }
-
-        console.log('SUCCESS! Photo uploaded:', uploadResponse.data.data);
-        setUploadStatus('Photo uploaded successfully!');
-        
-        if (uploadResponse.data?.data) {
-          setPhotos(prev => [uploadResponse.data.data, ...prev]);
-        }
-        
-        // Clear form
-        setPhotoCaption('');
-        setPhotoFile(null);
-        
-        // Clear file input
-        const fileInput = document.querySelector('input[type="file"][accept="image/*"]');
-        if (fileInput) fileInput.value = '';
-        
-      } catch (err) {
-        console.error('Upload error:', err.message);
-        setPhotoError(err.message || 'Upload failed');
-      } finally {
-        setUploadLoading(false);
-        console.log('=== UPLOAD PROCESS COMPLETE ===');
-      }
-    };
-
-    reader.onerror = (_event) => {
-      const errMsg = 'Failed to read the image file.';
-      console.error(errMsg, reader.error);
-      setPhotoError(errMsg);
-      setUploadLoading(false);
-    };
-
-    console.log('Starting FileReader...');
-    reader.readAsDataURL(photoFile);
-  };
 
   if (!isLoggedIn) {
     return (
@@ -509,48 +406,6 @@ function AdminView() {
                   )}
                 </div>
               )}
-            </div>
-          </div>
-
-          <div className="sidebar-card">
-            <div className="sidebar-header">📸 Photo Upload</div>
-            <div className="sidebar-content">
-              <label className="form-label" htmlFor="photo-caption">Caption</label>
-              <input
-                id="photo-caption"
-                name="photo-caption"
-                className="form-input"
-                value={photoCaption}
-                onChange={e => setPhotoCaption(e.target.value)}
-                placeholder="Describe the photo"
-              />
-              <label className="form-label" htmlFor="photo-file" style={{ marginTop: '1rem' }}>Select photo</label>
-              <input
-                id="photo-file"
-                name="photo-file"
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoFileChange}
-                style={{ width: '100%' }}
-              />
-              {photoFile && (
-                <div style={{ marginTop: '0.85rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                  ✓ Selected: {photoFile.name} ({(photoFile.size / 1024 / 1024).toFixed(2)}MB)
-                </div>
-              )}
-              {uploadStatus && <div style={{ color: 'var(--green)', marginTop: '0.85rem', fontWeight: 500 }}>✓ {uploadStatus}</div>}
-              {photoError && <div style={{ color: 'var(--red)', marginTop: '0.85rem', fontWeight: 500 }}>✗ {photoError}</div>}
-              <button
-                className="btn btn-primary"
-                onClick={uploadPhoto}
-                disabled={uploadLoading || !photoFile}
-                style={{ width: '100%', marginTop: '1rem' }}
-              >
-                {uploadLoading ? 'Uploading…' : 'Upload Photo'}
-              </button>
-              <div style={{ marginTop: '0.75rem', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-                Uploaded photos appear on the dashboard gallery.
-              </div>
             </div>
           </div>
         </div>
